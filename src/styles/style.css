@@ -14,7 +14,6 @@ body {
   color: white;
   font-family: "Times New Roman", serif;
   overflow-y: auto;
-  touch-action: pan-y;
 }
 
 .section {
@@ -119,7 +118,7 @@ body {
 
 /* HAWKINS */
 .hawkins {
-  background-image: url("/assets/hawkins.webp");
+  background-image: url("/assets/hawkins.jpeg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -504,7 +503,7 @@ body {
 
 /* UPSIDE DOWN */
 .upside-down {
-  background-image: url("/assets/upside-down.webp");
+  background-image: url("/assets/upside-down.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -635,7 +634,6 @@ body {
   justify-content: space-between;
   padding: 0 20px;
   background: rgba(0,0,0,0.92);
-  backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(220, 38, 38, 0.6);
   box-shadow:
     0 0 18px rgba(220,38,38,0.25),
@@ -780,7 +778,7 @@ body {
   .navbar {
     padding: 0 20px;
     height: 70px;
-    position: sticky;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
@@ -827,8 +825,6 @@ body {
   pointer-events: none;
   visibility: hidden;
   background: rgba(0,0,0,0.97);
-  backdrop-filter: blur(12px);
-
   flex-direction: column;
   align-items: center;
   justify-content: flex-start; /* IMPORTANT */
@@ -844,7 +840,8 @@ body {
    border-bottom-left-radius: 22px;
   border-bottom-right-radius: 22px;
   box-shadow:
-    none;
+    0 12px 30px rgba(220,38,38,0.35),
+    inset 0 -1px 0 rgba(220,38,38,0.4);
 }
 /* ===== Red Scrollbar for Mobile Nav ===== */
 .nav-links::-webkit-scrollbar {
@@ -858,7 +855,7 @@ body {
 .nav-links::-webkit-scrollbar-thumb {
   background: #dc2626; /* LITABLAZE RED */
   border-radius: 999px;
-  box-shadow: none;
+  box-shadow: 0 0 10px rgba(220,38,38,0.8);
 }
 
 .nav-links::-webkit-scrollbar-thumb:hover {
@@ -1068,7 +1065,6 @@ body {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.88);
-  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1566,7 +1562,7 @@ body {
 
 @media (min-width: 769px) {
   .navbar {
-    backdrop-filter: none;
+    backdrop-filter: blur(8px);
   }
 }
 
@@ -1608,4 +1604,20 @@ body {
 @keyframes loadingPulse {
   0% { background-position: 0% 0%; }
   100% { background-position: 200% 0%; }
+}
+.section {
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+}
+.hero {
+  min-height: calc(100vh - 70px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+@media (max-width: 768px) {
+  .section {
+    min-height: 100svh; /* mobile-safe viewport */
+  }
 }

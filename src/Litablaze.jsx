@@ -264,27 +264,23 @@ if (cachedKeys) {
     }
   }, []);
 
-  // Intersection Observer for navbar theme
-  useEffect(() => {
-    if (!upsideDownSectionRef.current) return;
+  const lastTheme = useRef(null);
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          setNavbarUpsideTheme(entry.isIntersecting);
-        });
-      },
-      { threshold: 0.35 }
-    );
+useEffect(() => {
+  if (!upsideDownSectionRef.current) return;
 
-    observer.observe(upsideDownSectionRef.current);
+  const observer = new IntersectionObserver(entries => {
+    const isVisible = entries[0].isIntersecting;
+    if (lastTheme.current !== isVisible) {
+      lastTheme.current = isVisible;
+      setNavbarUpsideTheme(isVisible);
+    }
+  }, { threshold: 0.35 });
 
-    return () => {
-      if (upsideDownSectionRef.current) {
-        observer.unobserve(upsideDownSectionRef.current);
-      }
-    };
-  }, []);
+  observer.observe(upsideDownSectionRef.current);
+  return () => observer.disconnect();
+}, []);
+
 
   // Close menu on link click
   useEffect(() => {
@@ -661,7 +657,7 @@ const fetchRegistrationsForProfile = async () => {
       <section className="section" id="home">
         <main className="hero">
           <div className="title-wrapper">
-            <img src="assets/litablaze.png" className="title-image" alt="Litablaze" />
+            <img src="assets/litablaze.webp" loading="lazy" decoding="async"className="title-image" alt="Litablaze" />
           </div>
 
           <p className="subtitle">
@@ -697,7 +693,7 @@ const fetchRegistrationsForProfile = async () => {
           </div>
 
           <div className={`event-list flagged-grid ${flaggedOpen ? 'active' : ''}`} id="flagged">
-            {eventCardsData.flagged.map((cardData) => (
+            {flaggedOpen && eventCardsData.flagged.map((cardData) => (
               <EventCard key={cardData.key} cardData={cardData} />
             ))}
           </div>
@@ -712,7 +708,7 @@ const fetchRegistrationsForProfile = async () => {
           </div>
 
           <div className={`event-list fixed-visible ${unflaggedOpen ? 'active' : ''}`} id="unflagged">
-            {eventCardsData.unflagged.map((cardData) => (
+            {unflaggedOpen && eventCardsData.unflagged.map((cardData) => (
               <EventCard key={cardData.key} cardData={cardData} />
             ))}
           </div>
@@ -721,7 +717,7 @@ const fetchRegistrationsForProfile = async () => {
 
       {/* Portal Section */}
       <section className="section portal">
-        <img src="assets/portal.png" className="portal-image" alt="Portal" />
+        <img src="assets/portal.webp" className="portal-image" alt="Portal" />
       </section>
 
       {/* Upside Down Section */}
