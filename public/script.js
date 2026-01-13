@@ -1,5 +1,4 @@
-const SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbxhHFITHPKnvJOknTeL4XxfQk2xvZIfx3hUehtXrSV-EXZe9TPFVfZ2yp884nmay84n/exec";
+window.SCRIPT_URL =window.SCRIPT_URL ||"https://script.google.com/macros/s/AKfycbxhHFITHPKnvJOknTeL4XxfQk2xvZIfx3hUehtXrSV-EXZe9TPFVfZ2yp884nmay84n/exec";
 
 let currentLevel = 0
 window.registeredEvents = new Set();
