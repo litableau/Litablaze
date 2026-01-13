@@ -118,7 +118,7 @@ body {
 
 /* HAWKINS */
 .hawkins {
-  background-image: url("public/assets/hawkins.jpeg");
+  background-image: url("/assets/hawkins.jpeg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -503,7 +503,7 @@ body {
 
 /* UPSIDE DOWN */
 .upside-down {
-  background-image: url("public/assets/upside-down.png");
+  background-image: url("/assets/upside-down.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
