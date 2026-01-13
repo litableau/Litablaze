@@ -1,5 +1,4 @@
-const SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbzBs5qQfWe4UCwJ0TXOVo5DnruP_S8jRHigHsiDHLHaGgK0GE-9EeJRiuJW4x81tiD2/exec";
+const SCRIPT_URL ="https://script.google.com/macros/s/AKfycbzBs5qQfWe4UCwJ0TXOVo5DnruP_S8jRHigHsiDHLHaGgK0GE-9EeJRiuJW4x81tiD2/exec";
 
 document.getElementById('signupForm').addEventListener('submit', async (e) => {
   e.preventDefault();
