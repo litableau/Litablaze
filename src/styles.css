@@ -135,37 +135,10 @@ body {
   scroll-snap-align: start;
     will-change: background-image;
   contain: paint;
-  text-shadow:
-    0 0 6px rgba(220, 38, 38, 0.9),
-    0 0 14px rgba(220, 38, 38, 0.8),
-    0 0 28px rgba(220, 38, 38, 0.7),
-    0 0 60px rgba(127, 29, 29, 0.9);
-  animation:
-    hawkinsGlow 3s ease-in-out infinite,
-    hawkinsFlicker 6s infinite;
+ 
 }
 
 
-@keyframes hawkinsGlow {
-  0% {
-    text-shadow:
-      0 0 6px rgba(220, 38, 38, 0.7),
-      0 0 14px rgba(220, 38, 38, 0.6),
-      0 0 28px rgba(220, 38, 38, 0.5);
-  }
-  50% {
-    text-shadow:
-      0 0 10px rgba(220, 38, 38, 1),
-      0 0 22px rgba(220, 38, 38, 0.9),
-      0 0 50px rgba(127, 29, 29, 1);
-  }
-  100% {
-    text-shadow:
-      0 0 6px rgba(220, 38, 38, 0.7),
-      0 0 14px rgba(220, 38, 38, 0.6),
-      0 0 28px rgba(220, 38, 38, 0.5);
-  }
-}
 
 .hawkins::before {
   content: "";
@@ -192,11 +165,17 @@ body {
   z-index: 5;
   font-size: 64px;
   letter-spacing: 6px;
-  color: #e11d48;
-  margin-bottom: 40px;
-  text-align: center;
-  width: 100%;
+
+  /* 🖤 Pure black text */
+  color: #000000;
+
+  /* 🔴 Constant red glow (soft & stable) */
+  text-shadow:
+    0 0 6px rgba(220, 38, 38, 0.6),
+    0 0 14px rgba(220, 38, 38, 0.45),
+    0 0 28px rgba(220, 38, 38, 0.25);
 }
+
 
 .events-section {
   width: 100%;
