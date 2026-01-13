@@ -461,7 +461,7 @@ if (navbar && upsideSection) {
 async function registerForEvent(eventKey) {
   const profile = JSON.parse(localStorage.getItem('litablaze_profile') || 'null');
   if (!profile || !profile.email) {
-    window.location.href = 'login.html';
+    window.location.href = '/login';
     return;
   }
 
@@ -539,15 +539,15 @@ function goToProfile() {
   const profile = localStorage.getItem("litablaze_profile");
 
   if (!profile) {
-    window.location.href = "login.html";
+    window.location.href = "/login";
   } else {
-    window.location.href = "profile.html";
+    window.location.href = "/profile";
   }
 }
 function logout() {
   localStorage.removeItem('litablaze_profile');
   localStorage.removeItem('litablaze_sheet_regs');
-  window.location.href = 'login.html';
+  window.location.href = '/login';
 }
 // Normalize various shapes returned from the Google Script into a
 // { "Event Name": "LITID" } mapping that the UI expects.
@@ -916,6 +916,8 @@ function updateEventButtons() {
     }
 
     btn.classList.remove("registered");
+
+
   });
 }
 // updateEventButtons already called in the DOMContentLoaded async handler above
@@ -964,13 +966,13 @@ function goToProfile() {
   const profile = localStorage.getItem("litablaze_profile");
 
   if (!profile) {
-    window.location.href = "/login.html";
+    window.location.href = "/login";
   } else {
-    window.location.href = "/profile.html";
+    window.location.href = "/profile";
   }
 }
 function logout() {
   localStorage.removeItem("litablaze_profile");
   localStorage.removeItem("litablaze_sheet_regs");
-  window.location.href = "/login.html";
+  window.location.href = "/login";
 }

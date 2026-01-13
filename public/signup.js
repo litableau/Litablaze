@@ -45,7 +45,7 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
       if (data.registrations) localStorage.setItem('litablaze_sheet_regs', JSON.stringify(data.registrations));
 
       await window.showAlert('Account created. Your LIT ID: ' + profile.litid);
-      window.location.href = 'index.html';
+      window.location.href = '/home';
     } else {
       await window.showAlert('Could not create account. Try again later.');
     }

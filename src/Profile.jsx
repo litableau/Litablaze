@@ -72,89 +72,115 @@ export default function Profile() {
     <>
       {/* ================= STYLES ================= */}
       <style>{`
-        body {
-          margin: 0;
-          min-height: 100vh;
-          background: radial-gradient(circle at top, #1a0000, #000);
-          color: #fca5a5;
-          font-family: "Times New Roman", serif;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
+        * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Times New Roman", serif;
+    }
 
-        .profile-card {
-          width: 90%;
-          max-width: 720px;
-          background: rgba(0,0,0,0.75);
-          border: 2px solid #dc2626;
-          border-radius: 18px;
-          padding: 32px;
-          box-shadow: 0 0 30px rgba(220,38,38,0.7);
-        }
+    body {
+      height: 100vh;
+      background: radial-gradient(circle at center, #2b0b0b, #000000);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
 
-        h1 {
-          text-align: center;
-          color: #dc2626;
-          letter-spacing: 3px;
-          margin-bottom: 20px;
-        }
+    .login-box {
+      width: 90%;
+      max-width: 380px;
+      padding: 32px 28px;
+      background: rgba(0, 0, 0, 0.75);
+      border: 1px solid rgba(220, 38, 38, 0.7);
+      border-radius: 18px;
 
-        .user-info p {
-          margin: 6px 0;
-          font-size: 15px;
-        }
+      box-shadow:
+        0 0 35px rgba(220, 38, 38, 0.7),
+        inset 0 0 40px rgba(0, 0, 0, 0.8);
+    }
 
-        .registrations-title {
-          margin-top: 30px;
-          letter-spacing: 2px;
-          color: #f87171;
-        }
+    .login-title {
+      text-align: center;
+      font-size: 24px;
+      letter-spacing: 4px;
+      color: #dc2626;
+      margin-bottom: 10px;
+      text-shadow:
+        0 0 12px rgba(220,38,38,0.9),
+        0 0 28px rgba(127,29,29,0.6);
+    }
 
-        .registration {
-          margin-top: 12px;
-          background: rgba(0,0,0,0.6);
-          border: 1px solid rgba(220,38,38,0.6);
-          padding: 14px 18px;
-          border-radius: 14px;
-        }
+    .login-subtitle {
+      text-align: center;
+      font-size: 12px;
+      letter-spacing: 2px;
+      color: #fca5a5;
+      margin-bottom: 26px;
+    }
 
-        .registration strong {
-          color: #dc2626;
-        }
+    .form-group {
+      margin-bottom: 18px;
+    }
 
-        .no-registrations {
-          text-align: center;
-          margin-top: 20px;
-          opacity: 0.7;
-        }
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+      color: #f87171;
+    }
 
-        .actions {
-          margin-top: 30px;
-          display: flex;
-          justify-content: center;
-          gap: 16px;
-        }
+    .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      background: rgba(0,0,0,0.7);
+      border: 1px solid rgba(220,38,38,0.6);
+      border-radius: 999px;
+      color: white;
+      font-size: 14px;
+      outline: none;
+    }
 
-        .btn {
-          padding: 10px 26px;
-          border-radius: 999px;
-          border: none;
-          cursor: pointer;
-          letter-spacing: 2px;
-          font-weight: bold;
-        }
+    .form-group input:focus {
+      border-color: #dc2626;
+      box-shadow: 0 0 12px rgba(220,38,38,0.7);
+    }
 
-        .btn-home {
-          background: #dc2626;
-          color: black;
-        }
+    .login-btn {
+      width: 100%;
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 999px;
+      border: none;
+      background: #dc2626;
+      color: black;
+      font-weight: bold;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
 
-        .btn-logout {
-          background: transparent;
-          color: #fca5a5;
-          border: 1px solid rgba(220,38,38,0.6);
-        }
+    .login-btn:hover {
+      background: #ff4d4d;
+      box-shadow:
+        0 0 25px rgba(220,38,38,0.9);
+    }
+
+    .note {
+      margin-top: 16px;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      color: #fca5a5;
+      text-align: center;
+      opacity: 0.85;
+    }
+
+    ::selection {
+      background: rgba(220,38,38,0.6);
+      color: black;
+    }
       `}</style>
 
       {/* ================= UI ================= */}
@@ -184,7 +210,7 @@ export default function Profile() {
         )}
 
         <div className="actions">
-          <button className="btn btn-home" onClick={() => navigate("/")}>
+          <button className="btn btn-home" onClick={() => navigate("/home")}>
             HOME
           </button>
           <button className="btn btn-logout" onClick={logout}>

@@ -46,11 +46,12 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
       if (loginBtn) { loginBtn.disabled = false; if (origLoginText) loginBtn.textContent = origLoginText; }
       // Redirect to sign up with email prefilled (user can edit)
       try {
-        const q = encodeURIComponent(email || '');
-        window.location.href = `signup.html?email=${q}`;
-      } catch (e) {
-        window.location.href = 'signup.html';
-      }
+  const q = encodeURIComponent(email || "");
+  window.location.href = `/signup?email=${q}`;
+} catch (e) {
+  window.location.href = "/signup";
+}
+
       return;
     }
 
@@ -70,7 +71,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     try { sessionStorage.setItem('litablaze_profile_session', '1'); } catch (e) {}
 
     if (loginBtn) { loginBtn.disabled = false; if (origLoginText) loginBtn.textContent = origLoginText; }
-    window.location.href = "index.html";
+    window.location.href = "/home";
     } catch (err) {
     console.error(err);
     await window.showAlert('Could not verify email. Try again.');

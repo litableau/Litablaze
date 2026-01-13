@@ -1,7 +1,5 @@
 {
-  "routes": [
-    { "src": "^/login.html$", "dest": "/login.html" },
-    { "src": "^/profile.html$", "dest": "/profile.html" },
-    { "src": "^/(.*)$", "dest": "/" }
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/" }
   ]
 }
