@@ -165,9 +165,11 @@ body {
   z-index: 5;
   font-size: 64px;
   letter-spacing: 6px;
-
-  /* 🖤 Pure black text */
-  color: #000000;
+  
+  margin-bottom: 40px;
+  text-align: center;
+  width: 100%;
+   color: #000000;
 
   /* 🔴 Constant red glow (soft & stable) */
   text-shadow:
@@ -175,7 +177,6 @@ body {
     0 0 14px rgba(220, 38, 38, 0.45),
     0 0 28px rgba(220, 38, 38, 0.25);
 }
-
 
 .events-section {
   width: 100%;
@@ -189,7 +190,7 @@ body {
 
 .event-category {
   display: flex;
-  
+  cursor: pointer;
   flex-direction: column;   /* STACK h2 + h3 */
   align-items: flex-start;  /* LEFT ALIGN */
   gap: 8px;
@@ -207,6 +208,7 @@ body {
   transition: all 0.3s ease;
 }
 .event-category h2 {
+  cursor: pointer;
   margin: 0;
   pointer-events: none;
   color: #dc2626;
@@ -215,6 +217,7 @@ body {
 }
 .event-category h3 {
   margin: 0;
+  cursor: pointer;
   font-size: 13px;
   font-weight: normal;
   letter-spacing: 1.5px;
@@ -225,6 +228,7 @@ body {
 .event-category .chevron {
   position: absolute;
   right: 18px;
+  cursor: pointer;
   top: 22px; /* aligns with h2 */
   transform: rotate(0deg);
   display: inline-flex;
@@ -235,17 +239,30 @@ body {
 .event-category.open .chevron {
   transform: rotate(180deg);
 }
-
-
 .event-list {
-  display: none;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 18px;
+  display: grid;
+  overflow: hidden;
+
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-8px);
+
+  transition:
+    max-height 0.45s ease,
+    opacity 0.35s ease,
+    transform 0.35s ease;
+
+  pointer-events: none;
 }
 
 .event-list.active {
-  display: grid;
+  max-height: 2000px; /* large enough */
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
+
+
 
 .event-list.fixed-visible {
   display: grid;
@@ -1593,4 +1610,23 @@ body {
 @keyframes loadingPulse {
   0% { background-position: 0% 0%; }
   100% { background-position: 200% 0%; }
+}
+.event-category {
+  position: relative;
+}
+
+.event-category .chevron {
+  position: absolute;
+  right: 20px;
+  top: 22px;
+
+  font-size: 18px;
+  color: #dc2626;
+
+  transition: transform 0.35s ease, opacity 0.3s ease;
+}
+
+/* Rotate when open */
+.event-category.open .chevron {
+  transform: rotate(180deg);
 }

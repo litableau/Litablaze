@@ -744,6 +744,7 @@ const fetchRegistrationsForProfile = async () => {
             aria-expanded={flaggedOpen}
           >
             <h2>FLAGGED EVENTS</h2>
+            <span className="chevron">▾</span>
           </div>
 
           <div className={`event-list flagged-grid ${flaggedOpen ? 'active' : ''}`} id="flagged">
@@ -759,9 +760,10 @@ const fetchRegistrationsForProfile = async () => {
             aria-expanded={unflaggedOpen}
           >
             <h2>UNFLAGGED EVENTS</h2>
+            <span className="chevron">▾</span>
           </div>
 
-          <div className={`event-list fixed-visible ${unflaggedOpen ? 'active' : ''}`} id="unflagged">
+          <div className={`event-list fixed ${unflaggedOpen ? 'active' : ''}`} id="unflagged">
             {unflaggedOpen && eventCardsData.unflagged.map((cardData) => (
               <EventCard key={cardData.key} cardData={cardData} />
             ))}
