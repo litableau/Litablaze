@@ -765,6 +765,7 @@ body {
 /* MOBILE NAVBAR */
 @media (max-width: 768px) {
   .section {
+    scroll-margin-top: 90px;
     padding-top: 90px;
     padding-left: 0;
     padding-right: 0;
@@ -816,26 +817,54 @@ body {
     transform: translateY(-9px) rotate(-45deg);
   }
 
-  .nav-links {
-    position: fixed;
-    top: 70px;
-    left: 0;
-    width: 100%;
-    height: 25vh;
-    pointer-events: none;
-    visibility: hidden;
-    background: rgba(0,0,0,0.97);
-    backdrop-filter: blur(12px);
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-    transform: translateY(-120%);
-    transition: transform 0.35s ease;
-    z-index: 99998;
-    border-bottom: 1px solid rgba(220,38,38,0.6);
-    box-shadow: 0 0 20px rgba(220,38,38,0.35);
-  }
+.nav-links {
+  position: fixed;
+  top: 70px;
+  left: 0;
+  width: 100%;
+  height: 25vh;
+  pointer-events: none;
+  visibility: hidden;
+  background: rgba(0,0,0,0.97);
+  backdrop-filter: blur(12px);
+
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* IMPORTANT */
+
+  padding-top: 24px;
+  gap: 14px;
+
+  transform: translateY(-120%);
+  transition: transform 0.35s ease;
+  z-index: 99998;
+  border-bottom: 1px solid rgba(220,38,38,0.6);
+  overflow-y: auto; /* SCROLL ENABLED */
+   border-bottom-left-radius: 22px;
+  border-bottom-right-radius: 22px;
+  box-shadow:
+    0 12px 30px rgba(220,38,38,0.35),
+    inset 0 -1px 0 rgba(220,38,38,0.4);
+}
+/* ===== Red Scrollbar for Mobile Nav ===== */
+.nav-links::-webkit-scrollbar {
+  width: 6px;
+}
+
+.nav-links::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.nav-links::-webkit-scrollbar-thumb {
+  background: #dc2626; /* LITABLAZE RED */
+  border-radius: 999px;
+  box-shadow: 0 0 10px rgba(220,38,38,0.8);
+}
+
+.nav-links::-webkit-scrollbar-thumb:hover {
+  background: #ff4d4d;
+}
+
 
   .nav-links.active {
     transform: translateY(0);
@@ -1031,7 +1060,9 @@ body {
     justify-content: center;
   }
 }
-
+#home {
+  scroll-margin-top: 90px;
+}
 /* REGISTER POPUP */
 .modal {
   position: fixed;

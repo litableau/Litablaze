@@ -67,14 +67,6 @@ export default function Profile() {
     navigate("/login");
   }
 
-  if (loading) {
-    return (
-      <div style={{ color: "#fca5a5", fontFamily: "Times New Roman" }}>
-        Loading profile...
-      </div>
-    );
-  }
-
   return (
     <>
       {/* ================= STYLES (MATCH profile.html) ================= */}
@@ -162,43 +154,79 @@ export default function Profile() {
           color: #fca5a5;
           border: 1px solid rgba(220,38,38,0.6);
         }
+        .loader {
+          width: 16px;
+          height: 16px;
+          border: 2px solid rgba(220, 38, 38, 0.3);
+          border-top: 2px solid #dc2626;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
       `}</style>
 
       {/* ================= UI ================= */}
       <div className="profile-card">
-        <h1>MY PROFILE</h1>
-
-        <div className="user-info">
-          <p><strong>Name:</strong> {user.name || ""}</p>
-          <p><strong>Email:</strong> {user.email || ""}</p>
-          <p><strong>LIT ID:</strong> {user.litid || ""}</p>
-          <p><strong>College:</strong> {user.college || ""}</p>
-          <p><strong>Department:</strong> {user.department || ""}</p>
-          <p><strong>Phone:</strong> {user.phone || ""}</p>
-        </div>
-
-        <h3 className="registrations-title">REGISTERED EVENTS</h3>
-
-        {registrations.length === 0 ? (
-          <p className="no-registrations">No events registered yet</p>
+        {loading ? (
+          <h1
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "12px",
+            }}
+          >
+            MY PROFILE
+            <span className="loader" />
+          </h1>
         ) : (
-          registrations.map((r, i) => (
-            <div className="registration" key={i}>
-              <strong>{r.event}</strong>
-              {r.timestamp && <><br />Registered at: {r.timestamp}</>}
+          <>
+            <h1>MY PROFILE</h1>
+        
+            <div className="user-info">
+              <p><strong>Name:</strong> {user.name || ""}</p>
+              <p><strong>Email:</strong> {user.email || ""}</p>
+              <p><strong>LIT ID:</strong> {user.litid || ""}</p>
+              <p><strong>College:</strong> {user.college || ""}</p>
+              <p><strong>Department:</strong> {user.department || ""}</p>
+              <p><strong>Phone:</strong> {user.phone || ""}</p>
             </div>
-          ))
-        )}
+        
+            <h3 className="registrations-title">REGISTERED EVENTS</h3>
+        
+            {registrations.length === 0 ? (
+              <p className="no-registrations">No events registered yet</p>
+            ) : (
+              registrations.map((r, i) => (
+                <div className="registration" key={i}>
+                  <strong>{r.event}</strong>
+                  {r.timestamp && (
+                    <>
+                      <br />
+                      Registered at: {r.timestamp}
+                    </>
+                  )}
+                </div>
+              ))
+            )}
 
-        <div className="actions">
-          <button className="btn btn-home" onClick={() => navigate("/home")}>
-            HOME
-          </button>
-          <button className="btn btn-logout" onClick={logout}>
-            LOGOUT
-          </button>
-        </div>
-      </div>
+            <div className="actions">
+              <button className="btn btn-home" onClick={() => navigate("/home")}>
+                HOME
+              </button>
+              <button className="btn btn-logout" onClick={logout}>
+                LOGOUT
+              </button>
+            </div>
+          </>
+        )}
+    </div>
+
     </>
   );
 }

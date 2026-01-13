@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './styles.css';
 
+
 // Original event data with full details (for modal)
 const eventData = {
   // FLAGGED EVENTS
@@ -236,6 +237,7 @@ const Litablaze = () => {
   const [profile, setProfile] = useState(null);
   const [sheetRegistrations, setSheetRegistrations] = useState({});
   const [localRegistrations, setLocalRegistrations] = useState({});
+  const [registeredEventKeys, setRegisteredEventKeys] = useState({});
 
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxhHFITHPKnvJOknTeL4XxfQk2xvZIfx3hUehtXrSV-EXZe9TPFVfZ2yp884nmay84n/exec";
   const upsideDownSectionRef = useRef(null);
@@ -245,6 +247,10 @@ const Litablaze = () => {
     const savedProfile = localStorage.getItem('litablaze_profile');
     const savedSheetRegs = localStorage.getItem('litablaze_sheet_regs');
     const savedLocalRegs = localStorage.getItem('litablaze_local_regs');
+    const cachedKeys = localStorage.getItem("litablaze_registered_keys");
+if (cachedKeys) {
+  setRegisteredEventKeys(JSON.parse(cachedKeys));
+}
 
     if (savedProfile) {
       setProfile(JSON.parse(savedProfile));
@@ -347,19 +353,6 @@ const Litablaze = () => {
     document.body.style.overflow = 'auto';
   };
 
-  const getMergedRegistrations = () => {
-    const merged = { ...sheetRegistrations };
-    
-    Object.entries(localRegistrations).forEach(([eventName, obj]) => {
-      const key = findEventKeyByTitle(eventName);
-      if (key && obj?.litid) {
-        merged[key] = obj.litid;
-      }
-    });
-
-    return merged;
-  };
-
   const findEventKeyByTitle = (title) => {
     const norm = s => String(s || '').replace(/\(.*\)/, '').replace(/[^a-z0-9]/gi, '').toLowerCase();
     const t = norm(title);
@@ -373,13 +366,11 @@ const Litablaze = () => {
     return null;
   };
 
-  const isEventRegistered = (eventKey) => {
-    const mergedRegs = getMergedRegistrations();
-    const userLit = profile?.litid ? String(profile.litid).trim() : null;
-    const regLit = mergedRegs[eventKey];
-    
-    return userLit && regLit && userLit === regLit;
-  };
+const isEventRegistered = (eventKey) => {
+  return !!registeredEventKeys[eventKey];
+};
+
+
 
   const registerForEvent = async (eventKey) => {
     if (!profile?.email) {
@@ -419,23 +410,49 @@ const Litablaze = () => {
     }
   };
 
-  const fetchRegistrationsForProfile = async () => {
-    if (!profile?.email) return;
+const fetchRegistrationsForProfile = async () => {
+  if (!profile?.email) return;
 
-    try {
-      const url = `${SCRIPT_URL}?email=${encodeURIComponent(profile.email)}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      
-      if (data) {
-        const extracted = extractRegistrationsByEmail(data, profile.email);
-        setSheetRegistrations(extracted);
-        localStorage.setItem('litablaze_sheet_regs', JSON.stringify(extracted));
-      }
-    } catch (err) {
-      console.warn('Could not fetch registrations:', err);
+  try {
+    const res = await fetch(
+      `${SCRIPT_URL}?email=${encodeURIComponent(profile.email)}`
+    );
+    const text = await res.text();
+
+    let data;
+    if (text.trim().startsWith("{")) {
+      data = JSON.parse(text);
+    } else {
+      const match = text.match(/\((.*)\)/);
+      data = match ? JSON.parse(match[1]) : {};
     }
-  };
+
+    // SAME as Profile.jsx
+    let regs = data.registrations || [];
+    if (!Array.isArray(regs)) {
+      regs = Object.keys(regs).map((k) => ({
+        event: k,
+      }));
+    }
+
+    // Convert event names → event keys
+    const keyMap = {};
+    regs.forEach((r) => {
+      const key = findEventKeyByTitle(r.event);
+      if (key) keyMap[key] = true;
+    });
+
+    setRegisteredEventKeys(keyMap);
+    localStorage.setItem(
+      "litablaze_registered_keys",
+      JSON.stringify(keyMap)
+    );
+  } catch (err) {
+    console.error("REGISTRATION FETCH ERROR:", err);
+  }
+};
+
+
 
   const extractRegistrationsByEmail = (raw, email) => {
     if (!raw) return {};
