@@ -119,7 +119,7 @@ body {
 
 /* HAWKINS */
 .hawkins {
-  background-image: url("/assets/hawkins.webp");
+  /*background-image: url("/assets/hawkins.webp");*/
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -133,6 +133,8 @@ body {
   height: auto;
   min-height: 100vh;
   scroll-snap-align: start;
+    will-change: background-image;
+  contain: paint;
   text-shadow:
     0 0 6px rgba(220, 38, 38, 0.9),
     0 0 14px rgba(220, 38, 38, 0.8),
@@ -142,6 +144,7 @@ body {
     hawkinsGlow 3s ease-in-out infinite,
     hawkinsFlicker 6s infinite;
 }
+
 
 @keyframes hawkinsGlow {
   0% {
@@ -504,7 +507,7 @@ body {
 
 /* UPSIDE DOWN */
 .upside-down {
-  background-image: url("/assets/upside-down.webp");
+  /*background-image: url("/assets/upside-down.webp");*/
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -514,6 +517,9 @@ body {
   justify-content: center;
   text-align: center;
   position: relative;
+  background-color: #000;   /* placeholder */
+  will-change: background-image;
+  contain: paint;
 }
 
 .upside-down::before {

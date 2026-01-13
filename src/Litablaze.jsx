@@ -239,6 +239,11 @@ const Litablaze = () => {
   const [localRegistrations, setLocalRegistrations] = useState({});
   const [registeredEventKeys, setRegisteredEventKeys] = useState({});
   const [registeringEventKey, setRegisteringEventKey] = useState(null);
+  const [hawkinsBgLoaded, setHawkinsBgLoaded] = useState(false);
+  const hawkinsRef = useRef(null);
+  const [upsideBgLoaded, setUpsideBgLoaded] = useState(false);
+const upsideBgRef = useRef(null);
+
 
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxhHFITHPKnvJOknTeL4XxfQk2xvZIfx3hUehtXrSV-EXZe9TPFVfZ2yp884nmay84n/exec";
   const upsideDownSectionRef = useRef(null);
@@ -263,6 +268,41 @@ if (cachedKeys) {
       setLocalRegistrations(JSON.parse(savedLocalRegs));
     }
   }, []);
+  useEffect(() => {
+  if (!upsideBgRef.current) return;
+
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      if (entry.isIntersecting) {
+        setUpsideBgLoaded(true);
+        observer.disconnect();
+      }
+    },
+    { threshold: 0.15 }
+  );
+
+  observer.observe(upsideBgRef.current);
+
+  return () => observer.disconnect();
+}, []);
+
+useEffect(() => {
+  if (!hawkinsRef.current) return;
+
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      if (entry.isIntersecting) {
+        setHawkinsBgLoaded(true);
+        observer.disconnect();
+      }
+    },
+    { threshold: 0.2 }
+  );
+
+  observer.observe(hawkinsRef.current);
+
+  return () => observer.disconnect();
+}, []);
 
   const lastTheme = useRef(null);
 
@@ -679,7 +719,21 @@ const fetchRegistrationsForProfile = async () => {
       </section>
 
       {/* Hawkins Section */}
-      <section className="section hawkins" id="hawkins">
+      <section
+  className="section hawkins"
+  id="hawkins"
+  ref={hawkinsRef}
+  style={
+    hawkinsBgLoaded
+      ? {
+          backgroundImage: "url('/assets/hawkins.webp')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }
+      : {}
+  }
+>
         <h1>WELCOME TO HAWKINS</h1>
 
         <div className="events-section">
@@ -721,7 +775,25 @@ const fetchRegistrationsForProfile = async () => {
       </section>
 
       {/* Upside Down Section */}
-      <section className="section upside-down" id="upsideSection1" ref={upsideDownSectionRef}>
+      <section
+  className="section upside-down"
+  id="upsideSection1"
+  ref={(node) => {
+    upsideDownSectionRef.current = node; // existing navbar observer
+    upsideBgRef.current = node;           // lazy bg observer
+  }}
+  style={
+    upsideBgLoaded
+      ? {
+          backgroundImage: "url('/assets/upside-down.webp')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }
+      : {}
+  }
+>
+
         <h1 className="upside-content">UPSIDE DOWN</h1>
 
         <div className="events-section upside-content">
