@@ -1,259 +1,629 @@
-import { useEffect } from "react";
-import "./styles.css";
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import './styles.css'; // Keep your existing CSS
 
-export default function Litablaze() {
+const Litablaze = () => {
+  const [currentSection, setCurrentSection] = useState('home');
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalData, setModalData] = useState(null);
+  const [modalUpsideMode, setModalUpsideMode] = useState(false);
+  const [flaggedOpen, setFlaggedOpen] = useState(false);
+  const [unflaggedOpen, setUnflaggedOpen] = useState(true);
+  const [registeredEvents, setRegisteredEvents] = useState(new Set());
+  const [navbarUpsideTheme, setNavbarUpsideTheme] = useState(false);
+  const [profile, setProfile] = useState(null);
+  const [sheetRegistrations, setSheetRegistrations] = useState({});
+  const [localRegistrations, setLocalRegistrations] = useState({});
+
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxhHFITHPKnvJOknTeL4XxfQk2xvZIfx3hUehtXrSV-EXZe9TPFVfZ2yp884nmay84n/exec";
+  const upsideDownSectionRef = useRef(null);
+
+  const eventData = {
+    // FLAGGED EVENTS
+    'jam': {
+      name: 'JAM',
+      category: 'Flagged',
+      explanation: 'JAM (Just a Minute) is a basic oratory event, in which participants are given a topic on the spot, and have to talk based off of it for a minute. Both Tamil and English or a mix of both languages are accepted.',
+      rules: 'The participant will be given a topic with 1 minute to prepare. They are not allowed to surf the web or access any data online during the event. Use of vulgarity is prohibited and will lead to negative marking.',
+      Date: 'January 23rd (Day 1)',
+      Timing: '[R1] 1:00 pm- 2:30 pm \n[R2] 3:00 pm - 4:30 pm',
+      'No. of participants': 'Solo event',
+      Venue: 'UTC',
+    },
+    'block-and-tackle': {
+      name: 'Block and Tackle',
+      category: 'Flagged',
+      explanation: 'Block and Tackle is a SOLO spoken event, which features a judge who provides the participant with a topic. When the judge says \'Block\', the participant must DEFEND the topic, and when the judge says \'Tackle\', the participant must speak AGAINST the topic.',
+      rules: ' The participant will be given a topic with 1 minute to prepare. They are not allowed to surf the web or access any data online during the event. Use of vulgarity is prohibited and will lead to negative marking.',
+      Date: 'January 24th (Day 2)',
+      Timing: '[R1] 10:30 am - 12:00 pm \n[R2] 1:00 pm - 2:30 pm',
+      'No. of participants': 'Solo event',
+      Venue: 'UTC',
+    },
+    'aiyoo-kekadha': {
+      name: 'Aiyoo Kekadha',
+      category: 'Flagged',
+      explanation: 'Aiyoo Kekadha is a SOLO spoken event, which features a judge who provides the participant with a topic or a scenario. The participant gets to go on a full fledged dramatic rant on said topic, for about 2-3 minutes.',
+      rules: 'The participant will be given a topic with 1 minute to prepare. They are not allowed to surf the web or access any data online during the event. Use of vulgarity is prohibited and will lead to negative marking.',
+      Date: 'January 24th (Day 2)',
+      Timing: '[R1] 10:30 am - 12:00 pm \n[R2] 1:00 pm - 2:30 pm',
+      'No. of participants': 'Solo event',
+      Venue: 'UTC',
+    },
+    'channel-surfing': {
+      name: 'Channel Surfing',
+      category: 'Flagged',
+      explanation: 'Channel Surfing is a GROUP performance event where participants enact a continuous skit. A host randomly announces different "channels" (such as News, Movie, Reality Show, Advertisement, Sports, Cartoon, etc.). Every time the channel changes, the team must instantly switch their performance style to match the new channel, while continuing the same situation or characters.',
+      rules: 'Minimum team size- 3 members. All participants of the team should contribute to the channel. Use of vulgarity in any form is strictly prohibited, and will lead to negative marking.',
+      Date: 'January 23rd (Day 1)',
+      Timing: '[R1] 1:00 pm- 2:30 pm \n[R2] 3:00 pm - 4:30 pm',
+      'No. of participants': 'Teams of 3-7',
+      Venue: 'New Auditorium',
+    },
+
+    // UNFLAGGED EVENTS
+    'tamil-movie-auction': {
+      name: 'Tamil Movie Auction',
+      category: 'Unflagged',
+      explanation: 'Tamil movie actors are auctioned off, with completely custom rules. Teams are formed and they are the "Producers" and they start with a fixed amount of money to make the next Blockbuster. The auctioneer presents different actors and the Producers have to invest carefully. Once they get their casting, the theme/genre of the films will be revealed and they have around 30 mins to come up with a storyline and plot and title for the movie. They will be graded based on how well they\'ve used each actor. And the Blockbuster is declared in the end.',
+      rules: 'Teams of 2-4 are allowed. Use of vulgarity is prohibited and will lead to negative marking. The storyline should not be of an already existing movie. Will be conducted in two batches.',
+      Date: 'January 24th (Day 2)',
+      Timing: '[B1] 10:30 am - 12:00 pm \n[B2] 1:00 pm - 2:30 pm',
+      'No. of participants': 'Teams of 2-4',
+      Venue: 'New Auditorium',
+    },
+    'quiz': {
+      name: 'Quiz',
+      category: 'Unflagged',
+      explanation: 'A fun-filled quiz competition for participants that blends knowledge with entertainment.',
+      rules: 'Participants are strictly not allowed to surf the web or access any data online during the event. Malpractice of any form, will lead to immediate disqualification.',
+      Date: 'January 24th (Day 2)',
+      Timing: '[R1] 10:30 am - 12:00 pm \n[R2] 1:00 pm - 2:30 pm',
+      'No. of participants': 'Teams of max. 3',
+      Venue: 'UTC',
+    },
+    'spell-bee': {
+      name: 'Spell Bee',
+      category: 'Unflagged',
+      explanation: 'Solo event where words will be given to the participants at random, and they\'ve to spell it right entirely. The person who gets the most correct words wins.',
+      rules: 'Participants are strictly not allowed to surf the web or access any data online during the event. Malpractice of any form, will lead to immediate disqualification.',
+      Date: 'January 23rd (Day 1)',
+      Timing: '1:00 pm - 4:00 pm',
+      'No. of participants': 'Solo event',
+      Venue: 'UTC',
+    },
+    'genre-swap': {
+      name: 'Genre Swap',
+      category: 'Unflagged',
+      explanation: 'Solo written event, where participants rewrite a given story or prompt by introducing an unexpected yet convincing twist. The twist must reshape the narrative while retaining the original essence of the story.',
+      rules: 'Participants are strictly not allowed to surf the web or access any data online during the event. Use of vulgarity is prohibited and will lead to negative marking.',
+      Date: 'January 23rd (Day 1)',
+      Timing: '1:00 pm - 4:00 pm',
+      'No. of participants': 'Solo event',
+      Venue: 'UTC',
+    },
+    'chaotic-canvas': {
+      name: 'Chaotic Canvas',
+      category: 'Unflagged',
+      explanation: 'A collaborative art event where participants contribute to a shared canvas, creating a chaotic yet cohesive masterpiece.',
+      rules: 'Participants are strictly not allowed to surf the web or access any data online during the event. Malpractice of any form, will lead to immediate disqualification.',
+      Date: 'January 23rd (Day 1)',
+      Timing: '1:00 pm - 4:00 pm',
+      'No. of participants': '',
+      Venue: 'UTC',
+    },
+
+    // CARNIVAL EVENTS
+    'board-games': {
+      name: 'Board Games',
+      category: 'Carnival',
+      explanation: 'Drop in anytime and play crowd favourites like Carrom, Song Association, UNO, and Lemon on the Spoon. No rules stress, no winners, just chill games and good company.',
+      Date: 'January 23rd and January 24th(both days)',
+      Timing: '10:30am to 4pm',
+      Venue: 'ACT Quadrangle',
+    },
+    'traditional-board-games': {
+      name: 'Traditional Board Games',
+      category: 'Carnival',
+      explanation: 'Rediscover classic games like Pallanguzhi, Dhayakattai, Aadu Puli Aatam, Chakram Uruttu, and Paramapadham. Simple, nostalgic, and fun for everyone.',
+      Date: 'January 23rd and January 24th(both days)',
+      Timing: '10:30am to 4pm',
+      Venue: 'ACT Quadrangle',
+    },
+    'face-painting': {
+      name: 'Face Painting',
+      category: 'Carnival',
+      explanation: 'Bringing colors to life with fun, creativity, and a splash of imagination. Choose vibrant designs and transform your look in this lively carnival experience.',
+      Date: 'January 23rd and January 24th(both days)',
+      Timing: '10:30am to 4pm',
+      Venue: 'ACT Quadrangle',
+    },
+    'stalls': {
+      name: 'Stalls',
+      category: 'Carnival',
+      explanation: 'A lively collection of colourful stalls featuring activities, food, games, and exciting sales. Explore, snack, shop, and enjoy the carnival vibe all in one place.',
+      Date: 'January 23rd and January 24th(both days)',
+      Timing: '10:30am to 4pm',
+      Venue: 'ACT Quadrangle',
+    },
+    'book-exchange': {
+      name: 'Book Exchange',
+      category: 'Carnival',
+      explanation: 'A fun and engaging book exchange event where stories are shared, swapped, and rediscovered. Bring a book, take a book, and leave with a new story.',
+      Date: 'January 23rd and January 24th(both days)',
+      Timing: '10:30am to 4pm',
+      Venue: 'ACT Quadrangle',
+    },
+  };
+
+  // Initialize profile from localStorage
   useEffect(() => {
-    // Load legacy scripts AFTER React mount
-    const ui = document.createElement("script");
-    ui.src = "/ui.js";
-    ui.defer = true;
+    const savedProfile = localStorage.getItem('litablaze_profile');
+    const savedSheetRegs = localStorage.getItem('litablaze_sheet_regs');
+    const savedLocalRegs = localStorage.getItem('litablaze_local_regs');
 
-    const script = document.createElement("script");
-    script.src = "/script.js";
-    script.defer = true;
+    if (savedProfile) {
+      setProfile(JSON.parse(savedProfile));
+    }
+    if (savedSheetRegs) {
+      setSheetRegistrations(JSON.parse(savedSheetRegs));
+    }
+    if (savedLocalRegs) {
+      setLocalRegistrations(JSON.parse(savedLocalRegs));
+    }
+  }, []);
 
-    document.body.appendChild(ui);
-    document.body.appendChild(script);
+  // Intersection Observer for navbar theme
+  useEffect(() => {
+    if (!upsideDownSectionRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          setNavbarUpsideTheme(entry.isIntersecting);
+        });
+      },
+      { threshold: 0.35 }
+    );
+
+    observer.observe(upsideDownSectionRef.current);
 
     return () => {
-      document.body.removeChild(ui);
-      document.body.removeChild(script);
+      if (upsideDownSectionRef.current) {
+        observer.unobserve(upsideDownSectionRef.current);
+      }
     };
   }, []);
 
-  return (
-    <>
-      <div className="page-wrapper">
+  // Close menu on link click
+  useEffect(() => {
+    const handleLinkClick = () => {
+      setMenuOpen(false);
+    };
 
-        {/* ================= HOME ================= */}
-        <section className="section" id="home">
-          <nav className="navbar">
-            <div className="logo">LITABLAZE</div>
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+      link.addEventListener('click', handleLinkClick);
+    });
 
-            <div className="hamburger" onClick={() => window.toggleMenu()}>
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
+    return () => {
+      navLinks.forEach(link => {
+        link.removeEventListener('click', handleLinkClick);
+      });
+    };
+  }, []);
 
-            <ul className="nav-links">
-              <li><a href="#home" className="nav-link">HOME</a></li>
-              <li><a href="#hawkins" className="nav-link">HAWKINS</a></li>
-              <li><a href="#upsideSection1" className="nav-link">UPSIDE DOWN</a></li>
-              <li>
-                <a
-                  href="https://litable-au-website-swart.vercel.app/"
-                  className="nav-link"
-                >
-                  LITCLUB
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="nav-link"
-                  onClick={() => window.goToProfile()}
-                >
-                  PROFILE
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="nav-link logout-btn"
-                  onClick={() => window.logout()}
-                >
-                  LOGOUT
-                </a>
-              </li>
-            </ul>
-          </nav>
+  // Close modal on Escape key
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && modalOpen) {
+        closeModal();
+      }
+    };
 
-          <main className="hero">
-            <div className="title-wrapper">
-              <img
-                src="/assets/litablaze.png"
-                className="title-image"
-                alt="Litablaze"
-              />
-            </div>
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [modalOpen]);
 
-            <p className="subtitle">
-              A Literary Signal From the Upside Down
-            </p>
+  // Fetch registrations on mount
+  useEffect(() => {
+    if (profile?.email) {
+      fetchRegistrationsForProfile();
+    }
+  }, [profile]);
 
-            <div className="card-container">
-              <a href="#hawkins" className="card">
-                <h2>ENTER HAWKINS</h2>
-                <p>(FLAGGED AND UNFLAGGED)</p>
-              </a>
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+    document.body.classList.toggle('menu-open', !menuOpen);
+  };
 
-              <a href="#upsideSection1" className="card">
-                <h2>ENTER UPSIDE DOWN</h2>
-                <p>(CARNIVAL ZONE)</p>
-              </a>
-            </div>
-          </main>
-        </section>
+  const toggleCategory = (category) => {
+    if (category === 'flagged') {
+      setFlaggedOpen(!flaggedOpen);
+    } else if (category === 'unflagged') {
+      setUnflaggedOpen(!unflaggedOpen);
+    }
+  };
 
-        {/* ================= HAWKINS ================= */}
-        <section className="section hawkins" id="hawkins">
-          <h1>WELCOME TO HAWKINS</h1>
+  const openModal = (eventKey, upsideMode = false) => {
+    const data = eventData[eventKey];
+    if (!data) return;
 
-          <div className="events-section">
+    setModalData(data);
+    setModalUpsideMode(upsideMode);
+    setModalOpen(true);
+    document.body.style.overflow = 'hidden';
+  };
 
-            <div
-              className="event-category fixed"
-              onClick={(e) =>
-                window.toggleCategory("flagged", e.currentTarget)
-              }
-            >
-              <h2>FLAGGED EVENTS</h2>
-            </div>
+  const closeModal = () => {
+    setModalOpen(false);
+    setModalData(null);
+    document.body.style.overflow = 'auto';
+  };
 
-            <div className="event-list flagged-grid" id="flagged">
-              {[
-                ["JAM", "jam"],
-                ["Block and Tackle", "block-and-tackle"],
-                ["Aiyoo Kekadha (Tamil / Tanglish)", "aiyoo-kekadha"],
-                ["Channel Surfing", "channel-surfing"],
-              ].map(([title, key]) => (
-                <div className="event-card" key={key}>
-                  <h3 className="event-title">{title}</h3>
-                  <p className="event-desc"></p>
-                  <button
-                    className="register-btn"
-                    onClick={() => window.openRegister(key)}
-                  >
-                    Register
-                  </button>
-                </div>
-              ))}
-            </div>
+  const getMergedRegistrations = () => {
+    const merged = { ...sheetRegistrations };
+    
+    Object.entries(localRegistrations).forEach(([eventName, obj]) => {
+      const key = findEventKeyByTitle(eventName);
+      if (key && obj?.litid) {
+        merged[key] = obj.litid;
+      }
+    });
 
-            <div
-              className="event-category fixed"
-              onClick={(e) =>
-                window.toggleCategory("unflagged", e.currentTarget)
-              }
-            >
-              <h2>UNFLAGGED EVENTS</h2>
-            </div>
+    return merged;
+  };
 
-            <div className="event-list fixed-visible" id="unflagged">
-              {[
-                ["Tamil Movie Auction", "tamil-movie-auction"],
-                ["Quiz", "quiz"],
-                ["Spell Bee", "spell-bee"],
-                ["Genre Swap", "genre-swap"],
-                ["Chaotic Canvas", "chaotic-canvas"],
-              ].map(([title, key]) => (
-                <div className="event-card" key={key}>
-                  <h3 className="event-title">{title}</h3>
-                  <p className="event-desc"></p>
-                  <button
-                    className="register-btn"
-                    onClick={() => window.openRegister(key)}
-                  >
-                    Register
-                  </button>
-                </div>
-              ))}
-            </div>
+  const findEventKeyByTitle = (title) => {
+    const norm = s => String(s || '').replace(/\(.*\)/, '').replace(/[^a-z0-9]/gi, '').toLowerCase();
+    const t = norm(title);
+    
+    for (const k of Object.keys(eventData)) {
+      const name = eventData[k]?.name || '';
+      if (name === title) return k;
+      if (norm(name) === t) return k;
+      if (norm(k) === t) return k;
+    }
+    return null;
+  };
 
-          </div>
-        </section>
+  const isEventRegistered = (eventKey) => {
+    const mergedRegs = getMergedRegistrations();
+    const userLit = profile?.litid ? String(profile.litid).trim() : null;
+    const regLit = mergedRegs[eventKey];
+    
+    if (userLit && regLit && userLit === regLit) {
+      return true;
+    }
+    return registeredEvents.has(eventKey);
+  };
 
-        {/* ================= PORTAL ================= */}
-        <section className="section portal">
-          <img
-            src="/assets/portal.png"
-            className="portal-image"
-            alt="Portal"
-          />
-        </section>
+  const registerForEvent = async (eventKey) => {
+    if (!profile?.email) {
+      window.location.href = '/login';
+      return;
+    }
 
-        {/* ================= UPSIDE DOWN ================= */}
-        <section className="section upside-down" id="upsideSection1">
-          <h1 className="upside-content">UPSIDE DOWN</h1>
+    const eventName = eventData[eventKey]?.name || eventKey;
+    const updatedLocalRegs = { ...localRegistrations };
+    updatedLocalRegs[eventName] = {
+      litid: profile.litid || '',
+      timestamp: new Date().toISOString()
+    };
+    
+    setLocalRegistrations(updatedLocalRegs);
+    localStorage.setItem('litablaze_local_regs', JSON.stringify(updatedLocalRegs));
 
-          <div className="events-section upside-content">
-            <div className="event-category fixed">
-              <h2>CARNIVAL ZONE</h2>
-              <h3>Date : January 23rd and January 24th</h3>
-              <h3>Timing : 10:30am to 4pm</h3>
-              <h3>Venue : ACT Quadrangle</h3>
-            </div>
+    // Call to server
+    const payload = new FormData();
+    payload.append('action', 'register');
+    payload.append('event', eventName);
+    payload.append('email', profile.email);
+    payload.append('name', profile.name || '');
+    payload.append('college', profile.college || '');
+    payload.append('department', profile.department || '');
+    payload.append('phone', profile.phone || '');
 
-            <div className="event-list fixed-visible">
-              {[
-                "Board Games",
-                "Traditional Board Games",
-                "Face Painting",
-                "Stalls",
-                "Book Exchange",
-              ].map((title) => (
-                <div className="event-card" key={title}>
-                  <h3 className="event-title">{title}</h3>
-                  <p className="event-desc"></p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+    try {
+      const res = await fetch(SCRIPT_URL, { method: 'POST', body: payload });
+      const data = await res.json();
+      
+      if (data?.success) {
+        await fetchRegistrationsForProfile();
+      }
+    } catch (err) {
+      console.error('Registration error:', err);
+    }
+  };
 
-        {/* ================= FOOTER ================= */}
-        <section className="footer">
-          <p>
-            © 2026 LITCLUB – Literary Society of Anna University. All rights
-            reserved.
+  const fetchRegistrationsForProfile = async () => {
+    if (!profile?.email) return;
+
+    try {
+      const url = `${SCRIPT_URL}?email=${encodeURIComponent(profile.email)}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      
+      if (data) {
+        const extracted = extractRegistrationsByEmail(data, profile.email);
+        setSheetRegistrations(extracted);
+        localStorage.setItem('litablaze_sheet_regs', JSON.stringify(extracted));
+      }
+    } catch (err) {
+      console.warn('Could not fetch registrations:', err);
+    }
+  };
+
+  const extractRegistrationsByEmail = (raw, email) => {
+    if (!raw) return {};
+    
+    const regs = {};
+    const lowerEmail = (email || '').toLowerCase();
+
+    const processRow = (row) => {
+      if (!row) return;
+      
+      if (Array.isArray(row)) {
+        const [event, litid, rowEmail] = row.map(v => (v || '').toString().trim());
+        if (rowEmail && lowerEmail && rowEmail.toLowerCase().includes(lowerEmail)) {
+          if (event && litid) {
+            regs[event] = litid;
+          }
+        }
+        return;
+      }
+
+      if (typeof row === 'object') {
+        const keys = Object.keys(row);
+        const lowerKeys = keys.map(k => k.toLowerCase());
+
+        const emailKey = keys[lowerKeys.findIndex(k => /email|e-mail/.test(k))];
+        const eventKey = keys[lowerKeys.findIndex(k => /event|eventname|event_name|event title|eventtitle/.test(k))];
+        const idKey = keys[lowerKeys.findIndex(k => /lit|id|litid|registration|registrationid|registration_id/.test(k))];
+
+        const rowEmail = emailKey ? String(row[emailKey]).trim().toLowerCase() : null;
+        const eventName = eventKey ? String(row[eventKey]).trim() : null;
+        const litid = idKey ? String(row[idKey]).trim() : null;
+
+        if (rowEmail && lowerEmail && rowEmail.includes(lowerEmail) && eventName && litid) {
+          regs[eventName] = litid;
+        }
+      }
+    };
+
+    if (Array.isArray(raw)) {
+      raw.forEach(processRow);
+    } else if (typeof raw === 'object') {
+      Object.values(raw).forEach(value => {
+        if (Array.isArray(value)) {
+          value.forEach(processRow);
+        } else {
+          processRow(value);
+        }
+      });
+    }
+
+    return regs;
+  };
+
+  const goToProfile = () => {
+    if (!profile) {
+      window.location.href = '/login';
+    } else {
+      window.location.href = '/profile';
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem('litablaze_profile');
+    localStorage.removeItem('litablaze_sheet_regs');
+    localStorage.removeItem('litablaze_local_regs');
+    setProfile(null);
+    window.location.href = '/login';
+  };
+
+  const handleCardClick = (eventKey, eventCategory) => {
+    const isCarnival = eventCategory?.toLowerCase() === 'carnival' || 
+                       eventCategory?.toLowerCase() === 'upside';
+    openModal(eventKey, isCarnival);
+  };
+
+  const handleRegisterClick = (e, eventKey) => {
+    e.stopPropagation();
+    if (isEventRegistered(eventKey)) return;
+    registerForEvent(eventKey);
+  };
+
+  const ModalContent = () => {
+    if (!modalData) return null;
+
+    const renderSection = (title, content) => {
+      if (!content || String(content).trim() === '') return null;
+      return (
+        <div className="detail-section">
+          <h3 className="detail-title">{title}</h3>
+          <p className="detail-text">{content}</p>
+        </div>
+      );
+    };
+
+    return (
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <span className="close-btn" onClick={closeModal}>&times;</span>
+        
+        <div className="modal-header">
+          <h2 className="modal-title flicker">Event Details</h2>
+          <p className="modal-event-name">
+            Event : <span id="eventName">{modalData.name}</span>
           </p>
-        </section>
-      </div>
+        </div>
 
-      {/* ================= EVENT MODAL ================= */}
-      <div
-        id="registrationModal"
-        className="modal"
-        onClick={() => window.closeRegister()}
-      >
-        <div
-          className="modal-content"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <span
-            className="close-btn"
-            onClick={() => window.closeRegister()}
-          >
-            &times;
-          </span>
-
-          <div className="modal-header">
-            <h2 className="modal-title flicker">Event Details</h2>
-            <p className="modal-event-name">
-              Event : <span id="eventName">Event Name</span>
-            </p>
-          </div>
-
-          <div className="modal-body">
-            <div className="event-details">
-              {[
-                ["Event Explanation", "eventExplanation"],
-                ["Rules", "eventRules"],
-                ["Date", "eventDate"],
-                ["Timing", "eventTiming"],
-                ["Venue", "eventVenue"],
-                ["Team Size", "eventTeamSize"],
-              ].map(([label, id]) => (
-                <div className="detail-section" key={id}>
-                  <h3 className="detail-title">{label}</h3>
-                  <p id={id} className="detail-text"></p>
-                </div>
-              ))}
-            </div>
+        <div className="modal-body">
+          <div className="event-details">
+            {renderSection('Event Explanation', modalData.explanation)}
+            {renderSection('Rules', modalData.rules)}
+            {renderSection('Date', modalData.Date)}
+            {renderSection('Timing', modalData.Timing)}
+            {renderSection('Venue', modalData.Venue)}
+            {renderSection('Team Size', modalData['No. of participants'])}
           </div>
         </div>
       </div>
-    </>
+    );
+  };
+
+  const EventCard = ({ eventKey, data }) => {
+    const isRegistered = isEventRegistered(eventKey);
+    
+    return (
+      <div 
+        className="event-card" 
+        onClick={() => handleCardClick(eventKey, data.category)}
+      >
+        <h3 className="event-title">{data.name}</h3>
+        <p className="event-desc">{data.explanation}</p>
+        {data.category !== 'Carnival' && (
+          <button 
+            className={`register-btn ${isRegistered ? 'registered' : ''}`}
+            onClick={(e) => handleRegisterClick(e, eventKey)}
+            disabled={isRegistered}
+          >
+            {isRegistered ? 'Registered' : 'Register'}
+          </button>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="page-wrapper">
+      {/* Navigation */}
+      <nav className={`navbar ${navbarUpsideTheme ? 'upside-theme' : ''}`}>
+        <div className="logo">LITABLAZE</div>
+        
+        <div className={`hamburger ${menuOpen ? 'active' : ''}`} onClick={toggleMenu}>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+
+        <ul className={`nav-links ${menuOpen ? 'active' : ''}`}>
+          <li><a href="#home" className="nav-link">HOME</a></li>
+          <li><a href="#hawkins" className="nav-link">HAWKINS</a></li>
+          <li><a href="#upsideSection1" className="nav-link">UPSIDE DOWN</a></li>
+          <li><a href="https://litable-au-website-swart.vercel.app/" className="nav-link">LITCLUB</a></li>
+          <li><a href="javascript:void(0)" className="nav-link" onClick={goToProfile}>PROFILE</a></li>
+          {profile && (
+            <li><a href="javascript:void(0)" className="nav-link logout-btn" onClick={logout}>LOGOUT</a></li>
+          )}
+        </ul>
+      </nav>
+
+      {/* Home Section */}
+      <section className="section" id="home">
+        <main className="hero">
+          <div className="title-wrapper">
+            <img src="assets/litablaze.png" className="title-image" alt="Litablaze" />
+          </div>
+
+          <p className="subtitle">
+            A Literary Signal From the Upside Down
+          </p>
+
+          <div className="card-container">
+            <a href="#hawkins" className="card">
+              <h2>ENTER HAWKINS</h2>
+              <p>(FLAGGED AND UNFLAGGED)</p>
+            </a>
+
+            <a href="#upsideSection1" className="card">
+              <h2>ENTER UPSIDE DOWN</h2>
+              <p>(CARNIVAL ZONE)</p>
+            </a>
+          </div>
+        </main>
+      </section>
+
+      {/* Hawkins Section */}
+      <section className="section hawkins" id="hawkins">
+        <h1>WELCOME TO HAWKINS</h1>
+
+        <div className="events-section">
+          <div 
+            className={`event-category fixed ${flaggedOpen ? 'open' : ''}`}
+            onClick={() => toggleCategory('flagged')}
+            role="button"
+            aria-expanded={flaggedOpen}
+          >
+            <h2>FLAGGED EVENTS</h2>
+          </div>
+
+          <div className={`event-list ${flaggedOpen ? 'active' : ''}`} id="flagged">
+            {['jam', 'block-and-tackle', 'aiyoo-kekadha', 'channel-surfing'].map(key => (
+              <EventCard key={key} eventKey={key} data={eventData[key]} />
+            ))}
+          </div>
+
+          <div 
+            className={`event-category fixed ${unflaggedOpen ? 'open' : ''}`}
+            onClick={() => toggleCategory('unflagged')}
+            role="button"
+            aria-expanded={unflaggedOpen}
+          >
+            <h2>UNFLAGGED EVENTS</h2>
+          </div>
+
+          <div className={`event-list fixed-visible ${unflaggedOpen ? 'active' : ''}`} id="unflagged">
+            {['tamil-movie-auction', 'quiz', 'spell-bee', 'genre-swap', 'chaotic-canvas'].map(key => (
+              <EventCard key={key} eventKey={key} data={eventData[key]} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Portal Section */}
+      <section className="section portal">
+        <img src="assets/portal.png" className="portal-image" alt="Portal" />
+      </section>
+
+      {/* Upside Down Section */}
+      <section className="section upside-down" id="upsideSection1" ref={upsideDownSectionRef}>
+        <h1 className="upside-content">UPSIDE DOWN</h1>
+
+        <div className="events-section upside-content">
+          <div className="event-category fixed">
+            <h2>CARNIVAL ZONE</h2>
+            <h3>Date : January 23rd and January 24th</h3>
+            <h3>Timing : 10:30am to 4pm</h3>
+            <h3>Venue : ACT Quadrangle</h3>
+          </div>
+
+          <div className="event-list fixed-visible">
+            {['board-games', 'traditional-board-games', 'face-painting', 'stalls', 'book-exchange'].map(key => (
+              <EventCard key={key} eventKey={key} data={eventData[key]} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <section className="footer">
+        <p>© 2026 LITCLUB – Literary Society of Anna University. All rights reserved.</p>
+      </section>
+
+      {/* Modal */}
+      {modalOpen && (
+        <div 
+          className={`modal ${modalUpsideMode ? 'upside' : ''} active`}
+          onClick={closeModal}
+        >
+          <ModalContent />
+        </div>
+      )}
+    </div>
   );
-}
+};
+
+export default Litablaze;
