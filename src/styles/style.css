@@ -90,6 +90,13 @@ body {
   gap: 40px;
 }
 
+/* Neon glow around the entry cards */
+.card-container {
+  padding: 6px;
+  border-radius: 10px;
+  box-shadow: 0 0 30px var(--neon-red-soft), inset 0 0 12px rgba(0,0,0,0.25);
+}
+
 .card {
   text-decoration: none;
   color: #f87171;
@@ -663,7 +670,7 @@ body {
   list-style: none;
   border: 1px solid rgba(220,38,38,0.7);
   border-radius: 8px;
-  padding: 8px 20px;
+  padding: 0; /* move padding into the anchor so the whole pill is clickable */
   font-size: 13px;
   letter-spacing: 2px;
   color: #fca5a5;
@@ -674,6 +681,10 @@ body {
 .nav-links li a {
   color: inherit;
   text-decoration: none;
+  display: block;
+  padding: 8px 20px;
+  width: 100%;
+  cursor: pointer;
 }
 
 .nav-links li:hover {
@@ -873,10 +884,9 @@ body {
     width: 90%;
     text-align: center;
     font-size: 13px;
-    padding: 8px 20px;
+    padding: 0; /* anchor handles padding */
     width: 85%;
     font-size: 12px;
-    padding: 10px 22px;
   }
 
   .hero {
@@ -1579,15 +1589,23 @@ body {
   grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
 }
-
-/* Mobile */
+/* Mobile + Unflagged layout */
 @media (max-width: 640px) {
   #flagged.flagged-grid {
     grid-template-columns: 1fr;
   }
+  /* Make unflagged single-column on small screens */
+  #unflagged {
+    grid-template-columns: 1fr;
+  }
 }
+
+/* Unflagged events: match flagged two-column grid on desktop */
 #unflagged {
   margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
 }
 /* SPACE AFTER EACH EVENT GROUP */
 .event-list {

@@ -91,6 +91,13 @@ body {
   gap: 40px;
 }
 
+/* Neon glow around the entry cards */
+.card-container {
+  padding: 6px;
+  border-radius: 10px;
+  box-shadow: 0 0 30px var(--neon-red-soft), inset 0 0 12px rgba(0,0,0,0.25);
+}
+
 .card {
   text-decoration: none;
   color: #f87171;
@@ -268,6 +275,14 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1.5rem;
+}
+
+.event-list.fixed-visible {
+  /* Ensure fixed-visible lists ignore the collapsed defaults on .event-list */
+  max-height: 2000px; /* large enough to show all cards */
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 .event-list.fixed-visible .event-card:last-child {
@@ -667,7 +682,7 @@ body {
   list-style: none;
   border: 1px solid rgba(220,38,38,0.7);
   border-radius: 8px;
-  padding: 8px 20px;
+  padding: 0; /* move padding into the anchor so the whole pill is clickable */
   font-size: 13px;
   letter-spacing: 2px;
   color: #fca5a5;
@@ -678,6 +693,10 @@ body {
 .nav-links li a {
   color: inherit;
   text-decoration: none;
+  display: block;
+  padding: 8px 20px;
+  width: 100%;
+  cursor: pointer;
 }
 
 .nav-links li:hover {
@@ -878,10 +897,10 @@ body {
     width: 90%;
     text-align: center;
     font-size: 13px;
-    padding: 8px 20px;
+    padding: 0; /* anchor handles padding */
     width: 85%;
     font-size: 12px;
-    padding: 10px 22px;
+    /* keep padding on anchor for mobile */
   }
 
   .hero {
@@ -1591,9 +1610,20 @@ body {
   #flagged.flagged-grid {
     grid-template-columns: 1fr;
   }
+ #unflagged.flagged-grid {
+    grid-template-columns: 1fr;
+  }
+
 }
 #unflagged {
   margin-top: 24px;
+}
+
+/* Ensure unflagged events align with flagged two-column layout */
+#unflagged {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
 }
 /* SPACE AFTER EACH EVENT GROUP */
 .event-list {

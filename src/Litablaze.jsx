@@ -763,7 +763,7 @@ const fetchRegistrationsForProfile = async () => {
             <span className="chevron">▾</span>
           </div>
 
-          <div className={`event-list fixed ${unflaggedOpen ? 'active' : ''}`} id="unflagged">
+          <div className={`event-list flagged-grid ${unflaggedOpen ? 'active' : ''}`} id="unflagged">
             {unflaggedOpen && eventCardsData.unflagged.map((cardData) => (
               <EventCard key={cardData.key} cardData={cardData} />
             ))}
