@@ -14,6 +14,7 @@ const eventData = {
     Timing: '[R1] 1:00 pm- 2:30 pm \n[R2] 3:00 pm - 4:30 pm',
     'No. of participants': 'Solo event',
     Venue: 'UTC',
+    Contact:'Ashmika  : +91 81221 21344\nC.S.Abhinav : +91 99402 19278'
   },
   'block-and-tackle': {
     name: 'Block and Tackle',
@@ -24,6 +25,7 @@ const eventData = {
     Timing: '[R1] 10:30 am - 12:00 pm \n[R2] 1:00 pm - 2:30 pm',
     'No. of participants': 'Solo event',
     Venue: 'UTC',
+    Contact:'C.S.Abhinav : +91 99402 19278\nShaan : +91 97908 10625',
   },
   'aiyoo-kekadha': {
     name: 'Aiyoo Kekadha',
@@ -34,6 +36,7 @@ const eventData = {
     Timing: '[R1] 10:30 am - 12:00 pm \n[R2] 1:00 pm - 2:30 pm',
     'No. of participants': 'Solo event',
     Venue: 'UTC',
+    Contact:'Ashmika  : +91 81221 21344\nDeekshitha : +91 98840 69051',
   },
   'channel-surfing': {
     name: 'Channel Surfing',
@@ -44,6 +47,7 @@ const eventData = {
     Timing: '[R1] 1:00 pm- 2:30 pm \n[R2] 3:00 pm - 4:30 pm',
     'No. of participants': 'Teams of 3-7',
     Venue: 'New Auditorium',
+    Contact:'Harini : +91 63820 60103\nNiharika  : +91 96776 56309',
   },
 
   // UNFLAGGED EVENTS
@@ -56,6 +60,7 @@ const eventData = {
     Timing: '[B1] 10:30 am - 12:00 pm \n[B2] 1:00 pm - 2:30 pm',
     'No. of participants': 'Teams of 2-4',
     Venue: 'New Auditorium',
+    Contact:'Niharika  : +91 96776 56309\nPraveena : +91 75388 97559',
   },
   'quiz': {
     name: 'Quiz',
@@ -66,6 +71,7 @@ const eventData = {
     Timing: '[R1] 10:30 am - 12:00 pm \n[R2] 1:00 pm - 2:30 pm',
     'No. of participants': 'Teams of max. 3',
     Venue: 'UTC',
+    Contact:'Harini : +91 63820 60103',
   },
   'spell-bee': {
     name: 'Spell Bee',
@@ -76,6 +82,7 @@ const eventData = {
     Timing: '1:00 pm - 4:00 pm',
     'No. of participants': 'Solo event',
     Venue: 'UTC',
+    Contact:'Shaan : +91 97908 10625\nDeekshitha : +91 98840 69051',
   },
   'genre-swap': {
     name: 'Genre Swap',
@@ -625,6 +632,7 @@ const fetchRegistrationsForProfile = async () => {
             {renderSection('Timing', modalData.Timing)}
             {renderSection('Venue', modalData.Venue)}
             {renderSection('Team Size', modalData['No. of participants'])}
+            {renderSection('Contact', modalData.Contact)}
           </div>
         </div>
       </div>

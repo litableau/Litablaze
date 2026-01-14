@@ -740,6 +740,15 @@ body {
   transition: all 0.3s ease;
 }
 
+/* Hover glow/shift for hamburger when not active (preserve active transforms) */
+.hamburger:not(.active):hover span {
+  transform: translateY(-2px);
+  box-shadow: 0 0 10px var(--neon-red);
+}
+.hamburger:not(.active):hover span:nth-child(2) {
+  transform: translateY(0);
+}
+
 .navbar.upside-theme {
   background: rgba(2, 6, 23, 0.97);
   border-bottom: 1px solid rgba(56,189,248,0.6);
@@ -770,6 +779,16 @@ body {
 
 .navbar.upside-theme .hamburger span {
   background: #7dd3fc;
+}
+
+/* Upside-theme: make mobile dropdown border and scrollbar blue */
+.navbar.upside-theme .nav-links {
+  border-bottom: 1px solid rgba(56,189,248,0.6);
+  scrollbar-color: #38bdf8 rgba(0,0,0,0.6);
+}
+.navbar.upside-theme .nav-links::-webkit-scrollbar-thumb {
+  background: #38bdf8;
+  box-shadow: none;
 }
 
 /* MOBILE NAVBAR */
