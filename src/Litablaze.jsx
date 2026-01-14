@@ -93,6 +93,7 @@ const eventData = {
     Timing: '1:00 pm - 4:00 pm',
     'No. of participants': 'Solo event',
     Venue: 'UTC',
+    Contact:'Guruparan : +91 72992 41346',
   },
   'chaotic-canvas': {
     name: 'Chaotic Canvas',
@@ -103,6 +104,7 @@ const eventData = {
     Timing: '1:00 pm - 4:00 pm',
     'No. of participants': '',
     Venue: 'UTC',
+    Contact:'Guruparan : +91 72992 41346',
   },
 
   // CARNIVAL EVENTS
