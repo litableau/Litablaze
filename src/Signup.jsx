@@ -1,25 +1,101 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect,useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Signup() {
   const navigate = useNavigate();
-
-  useEffect(() => {
+  const [creating, setCreating] = useState(false);
+  
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_yTWgQViHMCR99ttniFpf0uUpCq7SsLQqV2Xg7XFGFlMnfC18Sq0SMztKxpaNnMjS/exec";
+useEffect(() => {
+  // Load ONLY ui.js if it contains pure UI helpers
+  if (!window.__UI_LOADED__) {
     const uiScript = document.createElement("script");
     uiScript.src = "/ui.js";
     uiScript.async = true;
     document.body.appendChild(uiScript);
+    window.__UI_LOADED__ = true;
+  }
 
-    const signupScript = document.createElement("script");
-    signupScript.src = "/signup.js";
-    signupScript.async = true;
-    document.body.appendChild(signupScript);
+  return () => {
+    // ❌ Do not remove ui.js
+    // Removing causes re-injection and double execution in StrictMode
+  };
+}, []);
 
-    return () => {
-      document.body.removeChild(uiScript);
-      document.body.removeChild(signupScript);
-    };
-  }, []);
+
+const handleSignup = async (e) => {
+  e.preventDefault();
+  if (creating) return;
+
+  setCreating(true);
+
+  const form = e.target;
+  const payload = new FormData(form);
+  payload.append("action", "signup");
+
+  const referralId = form.referralId?.value?.trim();
+
+  try {
+    // 1️⃣ SIGNUP
+    const res = await fetch(SCRIPT_URL, {
+      method: "POST",
+      body: payload,
+    });
+
+    const data = await res.json();
+    if (!data.success || !data.user) {
+      throw new Error("Signup failed");
+    }
+
+    const user = data.user;
+
+    // Save profile immediately
+    localStorage.setItem("litablaze_profile", JSON.stringify(user));
+
+    // 2️⃣ OPTIONAL REFERRAL SUBMISSION
+    if (referralId && referralId !== user.litid) {
+      try {
+        const referralPayload = new FormData();
+        referralPayload.append("action", "submitReferral");
+        referralPayload.append("referrerEmail", user.email);
+        referralPayload.append("referrerName", user.name || "");
+        referralPayload.append("referrerLitID", user.litid);
+        referralPayload.append("referredLitID", referralId);
+
+        const refRes = await fetch(SCRIPT_URL, {
+          method: "POST",
+          body: referralPayload,
+        });
+
+        const refText = await refRes.text();
+        let refData;
+
+        try {
+          refData = JSON.parse(refText);
+        } catch {
+          const match = refText.match(/\((.*)\)/);
+          refData = match ? JSON.parse(match[1]) : {};
+        }
+
+        // Do NOT block signup if referral fails
+        if (!refData.success) {
+          console.warn("Referral failed:", refData.message);
+        } else {
+          localStorage.setItem("litablaze_referral_used", "true");
+        }
+      } catch (err) {
+        console.warn("Referral submission error:", err);
+      }
+    }
+
+    // 3️⃣ REDIRECT
+    navigate("/home");
+
+  } catch (err) {
+    alert("Signup failed");
+    setCreating(false);
+  }
+};
 
   return (
     <>
@@ -128,34 +204,40 @@ export default function Signup() {
         <div className="login-title">LITABLAZE</div>
         <div className="login-subtitle">SIGN UP</div>
 
-        <form id="signupForm">
+        <form onSubmit={handleSignup}>
+
           <div className="form-group">
             <label htmlFor="email">EMAIL ID</label>
-            <input id="email" name="email" type="email" />
+            <input id="email" name="email" type="email" required />
           </div>
 
           <div className="form-group">
             <label htmlFor="name">FULL NAME</label>
-            <input id="name" name="name" type="text" />
+            <input id="name" name="name" type="text" required />
           </div>
 
           <div className="form-group">
             <label htmlFor="college">COLLEGE</label>
-            <input id="college" name="college" type="text" />
+            <input id="college" name="college" type="text" required />
           </div>
 
           <div className="form-group">
             <label htmlFor="department">DEPARTMENT</label>
-            <input id="department" name="department" type="text" />
+            <input id="department" name="department" type="text" required />
           </div>
 
           <div className="form-group">
             <label htmlFor="phone">PHONE</label>
-            <input id="phone" name="phone" type="tel" />
+            <input id="phone" name="phone" type="tel" required />
           </div>
 
-          <button type="submit" className="login-btn">
-            CREATE ACCOUNT
+          <div className="form-group">
+            <label htmlFor="referralId">REFERRAL ID (OPTIONAL)</label>
+            <input id="referralId" name="referralId" type="text" placeholder="Enter referral LitID" />
+          </div>
+
+          <button type="submit" className="login-btn" disabled={creating}>
+  {creating ? "CREATING..." : "CREATE ACCOUNT"}
           </button>
         </form>
 

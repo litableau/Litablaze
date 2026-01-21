@@ -251,11 +251,17 @@ const Litablaze = () => {
   const [hawkinsBgLoaded, setHawkinsBgLoaded] = useState(false);
   const hawkinsRef = useRef(null);
   const [upsideBgLoaded, setUpsideBgLoaded] = useState(false);
-const upsideBgRef = useRef(null);
+  const upsideBgRef = useRef(null);
+  const [referralInput, setReferralInput] = useState('');
+  const [referralError, setReferralError] = useState('');
+  const [referralSuccess, setReferralSuccess] = useState('');
+  const [referralSubmitted, setReferralSubmitted] = useState(false);
+  const [leaderboard, setLeaderboard] = useState([]);
 
 
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxhHFITHPKnvJOknTeL4XxfQk2xvZIfx3hUehtXrSV-EXZe9TPFVfZ2yp884nmay84n/exec";
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_yTWgQViHMCR99ttniFpf0uUpCq7SsLQqV2Xg7XFGFlMnfC18Sq0SMztKxpaNnMjS/exec";
   const upsideDownSectionRef = useRef(null);
+  const referralSectionRef = useRef(null);
 
   // Initialize profile from localStorage
   useEffect(() => {
@@ -263,9 +269,12 @@ const upsideBgRef = useRef(null);
     const savedSheetRegs = localStorage.getItem('litablaze_sheet_regs');
     const savedLocalRegs = localStorage.getItem('litablaze_local_regs');
     const cachedKeys = localStorage.getItem("litablaze_registered_keys");
-if (cachedKeys) {
-  setRegisteredEventKeys(JSON.parse(cachedKeys));
-}
+    const savedReferralUsed = localStorage.getItem('litablaze_referral_used');
+    const savedLeaderboard = localStorage.getItem('litablaze_leaderboard');
+    
+    if (cachedKeys) {
+      setRegisteredEventKeys(JSON.parse(cachedKeys));
+    }
 
     if (savedProfile) {
       setProfile(JSON.parse(savedProfile));
@@ -275,6 +284,9 @@ if (cachedKeys) {
     }
     if (savedLocalRegs) {
       setLocalRegistrations(JSON.parse(savedLocalRegs));
+    }
+    if (savedLeaderboard) {
+      setLeaderboard(JSON.parse(savedLeaderboard));
     }
   }, []);
   useEffect(() => {
@@ -313,22 +325,35 @@ useEffect(() => {
   return () => observer.disconnect();
 }, []);
 
-  const lastTheme = useRef(null);
+  const [upsideSectionVisible, setUpsideSectionVisible] = useState(false);
+  const [referralSectionVisible, setReferralSectionVisible] = useState(false);
 
 useEffect(() => {
   if (!upsideDownSectionRef.current) return;
 
   const observer = new IntersectionObserver(entries => {
-    const isVisible = entries[0].isIntersecting;
-    if (lastTheme.current !== isVisible) {
-      lastTheme.current = isVisible;
-      setNavbarUpsideTheme(isVisible);
-    }
+    setUpsideSectionVisible(entries[0].isIntersecting);
   }, { threshold: 0.35 });
 
   observer.observe(upsideDownSectionRef.current);
   return () => observer.disconnect();
 }, []);
+
+useEffect(() => {
+  if (!referralSectionRef.current) return;
+
+  const observer = new IntersectionObserver(entries => {
+    setReferralSectionVisible(entries[0].isIntersecting);
+  }, { threshold: 0.35 });
+
+  observer.observe(referralSectionRef.current);
+  return () => observer.disconnect();
+}, []);
+
+// Update navbar theme when either section is visible
+useEffect(() => {
+  setNavbarUpsideTheme(upsideSectionVisible || referralSectionVisible);
+}, [upsideSectionVisible, referralSectionVisible]);
 
 
   // Close menu on link click
@@ -595,6 +620,129 @@ const fetchRegistrationsForProfile = async () => {
   const isEventRegistered = (eventKey) => {
   return !!registeredEventKeys[eventKey];
 };
+
+  const submitReferral = async () => {
+    if (!profile?.email) {
+      setReferralError("Please login to submit a referral");
+      return;
+    }
+
+    if (referralSubmitted) {
+      setReferralError("You have already submitted a referral code");
+      return;
+    }
+
+    if (!referralInput.trim()) {
+      setReferralError("Please enter a referral LitID");
+      return;
+    }
+
+    if (referralInput.trim() === profile.litid) {
+      setReferralError("You cannot use your own LitID as a referral");
+      return;
+    }
+
+    setReferralError("");
+
+    const payload = new FormData();
+    payload.append("action", "submitReferral");
+    payload.append("referrerEmail", profile.email);
+    payload.append("referrerName", profile.name || "");
+    payload.append("referrerLitID", profile.litid || "");
+    payload.append("referredLitID", referralInput.trim());
+
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: payload,
+      });
+
+      const text = await res.text();
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch {
+        console.error("SERVER RESPONSE:", text);
+        setReferralError("Submission failed. Try again.");
+        return;
+      }
+
+      if (data.success) {
+        setReferralSubmitted(true);
+        setReferralSuccess("Referral submitted successfully! +1 bonus point added to the referred user.");
+        setReferralInput("");
+        
+        // Fetch updated leaderboard
+        await fetchLeaderboard();
+        
+        // Clear success message after 3 seconds
+        setTimeout(() => setReferralSuccess(""), 3000);
+      } else {
+        setReferralError(data.message || "Referral submission failed");
+      }
+    } catch (err) {
+      console.error("Referral submission error:", err);
+      setReferralError("Network error. Try again.");
+    }
+  };
+
+  const fetchLeaderboard = async () => {
+    try {
+      const res = await fetch(`${SCRIPT_URL}?action=getLeaderboard`);
+      const text = await res.text();
+
+      let data;
+      if (text.trim().startsWith("{")) {
+        data = JSON.parse(text);
+      } else {
+        const match = text.match(/\((.*)\)/);
+        data = match ? JSON.parse(match[1]) : {};
+      }
+
+      if (data.leaderboard && Array.isArray(data.leaderboard)) {
+        // Filter out users with bonus = 0 and sort by bonus descending, limit to top 10
+        const filtered = data.leaderboard.filter(entry => (entry.bonuspoints || 0) > 0);
+        const sorted = filtered.sort((a, b) => (b.bonuspoints || 0) - (a.bonuspoints || 0));
+        const top10 = sorted.slice(0, 10); // Limit to top 10
+        setLeaderboard(top10);
+        localStorage.setItem('litablaze_leaderboard', JSON.stringify(top10));
+      }
+    } catch (err) {
+      console.error("Leaderboard fetch error:", err);
+    }
+  };
+
+  const checkReferralStatus = async () => {
+    if (!profile?.litid) return;
+
+    try {
+      const res = await fetch(`${SCRIPT_URL}?action=checkReferralStatus&litid=${encodeURIComponent(profile.litid)}`);
+      const text = await res.text();
+
+      let data;
+      if (text.trim().startsWith("{")) {
+        data = JSON.parse(text);
+      } else {
+        const match = text.match(/\((.*)\)/);
+        data = match ? JSON.parse(match[1]) : {};
+      }
+
+      if (data.hasSubmittedReferral) {
+        setReferralSubmitted(true);
+      }
+    } catch (err) {
+      console.error("Check referral status error:", err);
+    }
+  };
+
+  // Fetch leaderboard and check referral status on profile load
+  useEffect(() => {
+    if (profile?.litid) {
+      fetchLeaderboard();
+      checkReferralStatus();
+    }
+  }, [profile?.litid]);
   const handleRegisterClick = (e, eventKey, eventCategory) => {
     e.stopPropagation();
     if (isEventRegistered(eventKey)) return;
@@ -695,6 +843,7 @@ const fetchRegistrationsForProfile = async () => {
           <li><a href="#home" className="nav-link">HOME</a></li>
           <li><a href="#hawkins" className="nav-link">HAWKINS</a></li>
           <li><a href="#upsideSection1" className="nav-link">UPSIDE DOWN</a></li>
+          <li><a href="#referral-section" className="nav-link">REFERRAL</a></li>
           <li><a href="https://litable-au-website-swart.vercel.app/" className="nav-link">LITCLUB</a></li>
           <li><a href="javascript:void(0)" className="nav-link" onClick={goToProfile}>PROFILE</a></li>
           {profile && (
@@ -820,6 +969,76 @@ const fetchRegistrationsForProfile = async () => {
             {eventCardsData.carnival.map((cardData) => (
               <EventCard key={cardData.key} cardData={cardData} />
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Referral Section */}
+      <section 
+        className="section upside-down" 
+        id="referral-section"
+        ref={referralSectionRef}
+      >
+        <div className="referral-container">
+          <h4 className="referral-title">Invite new participants, earn referral points, and win exciting prizes.</h4>
+          
+          {!referralSubmitted && (
+            <div className="referral-input-container">
+              <h2>Submit a Referral Code</h2>
+              <p className="referral-desc">Enter referrer's LitID to earn referral points for them. You can only submit one referral code.</p>
+              
+              <div className="referral-form">
+                <input
+                  type="text"
+                  placeholder="Enter LitID of referred user"
+                  value={referralInput}
+                  onChange={(e) => {
+                    setReferralInput(e.target.value);
+                    setReferralError("");
+                    setReferralSuccess("");
+                  }}
+                  className="referral-input"
+                />
+                <button
+                  onClick={submitReferral}
+                  className="referral-btn"
+                >
+                  Submit Referral
+                </button>
+              </div>
+
+              {referralError && <div className="referral-error">{referralError}</div>}
+              {referralSuccess && <div className="referral-success">{referralSuccess}</div>}
+            </div>
+          )}
+
+          {/* Leaderboard */}
+          <div className="leaderboard-container">
+            <h2>Referral Points Leaderboard</h2>
+            {leaderboard.length > 0 ? (
+              <div className="leaderboard-table">
+                <div className="leaderboard-header">
+                  <div className="leaderboard-rank">Rank</div>
+                  <div className="leaderboard-name">Name</div>
+                  <div className="leaderboard-litid">LitID</div>
+                  <div className="leaderboard-points">Referral Points</div>
+                </div>
+                <div className="leaderboard-body">
+                  {leaderboard.map((entry, index) => (
+                    <div key={index} className="leaderboard-row">
+                      <div className="leaderboard-rank">
+                        <span className={`rank-badge rank-${index + 1}`}>{index + 1}</span>
+                      </div>
+                      <div className="leaderboard-name">{entry.name || "Anonymous"}</div>
+                      <div className="leaderboard-litid">{entry.litid || "-"}</div>
+                      <div className="leaderboard-points">{entry.bonuspoints || 0}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <p className="no-leaderboard">No referrals submitted yet.</p>
+            )}
           </div>
         </div>
       </section>

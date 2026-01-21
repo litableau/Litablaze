@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbxhHFITHPKnvJOknTeL4XxfQk2xvZIfx3hUehtXrSV-EXZe9TPFVfZ2yp884nmay84n/exec";
+  "https://script.google.com/macros/s/AKfycbx_yTWgQViHMCR99ttniFpf0uUpCq7SsLQqV2Xg7XFGFlMnfC18Sq0SMztKxpaNnMjS/exec";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -205,6 +205,7 @@ export default function Profile() {
               <p><strong>College:</strong> {user.college || ""}</p>
               <p><strong>Department:</strong> {user.department || ""}</p>
               <p><strong>Phone:</strong> {user.phone || ""}</p>
+              <p><strong>Referral Points:</strong> {user.bonus ?? 0}</p>
             </div>
         
             <h3 className="registrations-title">REGISTERED EVENTS</h3>
